@@ -1,5 +1,6 @@
+import { Image } from 'expo-image';
 import type { ReactNode } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 type RootProps = {
   children: ReactNode;
@@ -22,8 +23,13 @@ function PokemonImage({ imageUrl }: PokemonImageProps) {
   return (
     <Image
       source={{ uri: imageUrl }}
+      placeholder={require('../../assets/pokemon-placeholder.svg')}
       style={styles.image}
-      resizeMode="contain"
+      contentFit="contain"
+      placeholderContentFit="contain"
+      transition={200}
+      cachePolicy="memory-disk"
+      recyclingKey={imageUrl}
       accessible={false}
     />
   );
