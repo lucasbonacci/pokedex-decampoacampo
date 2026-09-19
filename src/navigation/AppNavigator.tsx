@@ -16,7 +16,11 @@ export default function AppNavigator() {
           component={BottomTabs}
           options={{ headerShown: false }}
         />
-        <Stack.Screen name="PokemonDetail" component={PokemonDetailScreen} />
+        <Stack.Screen
+          name="PokemonDetail"
+          component={PokemonDetailScreen}
+          options={{ title: 'Detalle del Pokémon', headerBackTitleVisible: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

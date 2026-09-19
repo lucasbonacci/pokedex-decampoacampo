@@ -1,17 +1,25 @@
 import { Image } from 'expo-image';
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type RootProps = {
   children: ReactNode;
   accessibilityLabel: string;
+  onPress: () => void;
 };
 
-function Root({ children, accessibilityLabel }: RootProps) {
+function Root({ children, accessibilityLabel, onPress }: RootProps) {
   return (
-    <View style={styles.card} accessible accessibilityLabel={accessibilityLabel}>
+    <Pressable
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint="Abre el detalle del Pokémon"
+      onPress={onPress}
+    >
       {children}
-    </View>
+    </Pressable>
   );
 }
 
@@ -56,6 +64,9 @@ export const PokemonCard = {
 };
 
 const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.7,
+  },
   card: {
     flexDirection: 'row',
     alignItems: 'center',

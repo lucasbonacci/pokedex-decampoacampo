@@ -1,4 +1,6 @@
-import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type MainTabParamList = {
   PokemonList: undefined;
@@ -9,3 +11,13 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   PokemonDetail: { pokemonId: number };
 };
+
+export type PokemonListScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, 'PokemonList'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
+
+export type PokemonDetailScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  'PokemonDetail'
+>;

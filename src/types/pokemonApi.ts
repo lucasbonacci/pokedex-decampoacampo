@@ -34,7 +34,6 @@ export type PokemonDetail = {
   }[];
   abilities: {
     ability: NamedAPIResource;
-    is_hidden: boolean;
     slot: number;
   }[];
 };

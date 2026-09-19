@@ -1,35 +1,19 @@
-import { memo } from 'react';
+import { useCallback } from 'react';
 import { FlatList, StyleSheet, Text, type ListRenderItemInfo } from 'react-native';
 
 import { ErrorState } from '../components/ErrorState';
 import { Loading } from '../components/Loading';
-import { PokemonCard } from '../components/PokemonCard';
+import { PokemonListRow } from '../components/PokemonListRow';
 import { getRequestErrorMessage } from '../helpers/requestError';
 import { usePokemonList } from '../hooks/usePokemonList';
+import type { PokemonListScreenProps } from '../navigation/navigation.types';
 import type { PokemonListItem } from '../types/pokemonListItem';
-
-const PokemonListRow = memo(function PokemonListRow({
-  id,
-  name,
-  imageUrl,
-}: PokemonListItem) {
-  return (
-    <PokemonCard.Root accessibilityLabel={`${name}, #${id}`}>
-      <PokemonCard.Image imageUrl={imageUrl} />
-      <PokemonCard.Name id={id} name={name} />
-    </PokemonCard.Root>
-  );
-});
-
-function renderPokemon({ item }: ListRenderItemInfo<PokemonListItem>) {
-  return <PokemonListRow id={item.id} name={item.name} imageUrl={item.imageUrl} />;
-}
 
 function pokemonKey(item: PokemonListItem) {
   return String(item.id);
 }
 
-export default function PokemonListScreen() {
+export default function PokemonListScreen({ navigation }: PokemonListScreenProps) {
   const {
     pokemon,
     isLoading,
@@ -42,6 +26,18 @@ export default function PokemonListScreen() {
     isRefetching,
     retry,
   } = usePokemonList();
+
+  const openPokemon = useCallback(
+    (pokemonId: number) => navigation.navigate('PokemonDetail', { pokemonId }),
+    [navigation],
+  );
+
+  const renderPokemon = useCallback(
+    ({ item }: ListRenderItemInfo<PokemonListItem>) => (
+      <PokemonListRow {...item} onSelect={openPokemon} />
+    ),
+    [openPokemon],
+  );
 
   if (isLoading) {
     return <Loading label="Cargando Pokémon" fullScreen />;

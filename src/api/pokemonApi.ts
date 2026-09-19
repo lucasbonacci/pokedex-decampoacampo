@@ -22,8 +22,11 @@ export async function getPokemonList(
 
 export async function getPokemonDetail(
   idOrName: number | string,
+  signal?: AbortSignal,
 ): Promise<PokemonDetail> {
-  const response = await pokemonApi.get<PokemonDetail>(`/pokemon/${idOrName}`);
+  const response = await pokemonApi.get<PokemonDetail>(`/pokemon/${idOrName}`, {
+    signal,
+  });
 
   return response.data;
 }
