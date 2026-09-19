@@ -30,3 +30,14 @@ export async function getPokemonDetail(
 
   return response.data;
 }
+
+export async function getPokemonCatalog(signal?: AbortSignal) {
+  const firstPage = await getPokemonList(1, 0, signal);
+
+  if (firstPage.count <= firstPage.results.length) {
+    return firstPage.results;
+  }
+
+  const catalog = await getPokemonList(firstPage.count, 0, signal);
+  return catalog.results;
+}
