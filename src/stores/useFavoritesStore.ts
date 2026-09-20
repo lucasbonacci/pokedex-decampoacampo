@@ -13,10 +13,22 @@ type FavoritesStore = {
 
 export const useFavoritesStore = create<FavoritesStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       favorites: [],
       updateFavorites: async (update) => {
-        await set(({ favorites }) => ({ favorites: update(favorites) }));
+        const previousFavorites = get().favorites;
+
+        try {
+          await Promise.resolve(set(({ favorites }) => ({
+            favorites: update(favorites),
+          })));
+        } catch (error) {
+          try {
+            await Promise.resolve(set({ favorites: previousFavorites }));
+          } catch {}
+
+          throw error;
+        }
       },
     }),
     {
