@@ -10,6 +10,10 @@ export type PokemonListResponse = {
   results: NamedAPIResource[];
 };
 
+export type PokemonTypeResponse = {
+  pokemon: { slot: number; pokemon: NamedAPIResource }[];
+};
+
 export type PokemonDetail = {
   id: number;
   name: string;

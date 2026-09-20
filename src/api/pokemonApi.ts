@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import type { PokemonDetail, PokemonListResponse } from '../types/pokemonApi';
+import type { PokemonDetail, PokemonListResponse, PokemonTypeResponse } from '../types/pokemonApi';
 
 const pokemonApi = axios.create({
   baseURL: 'https://pokeapi.co/api/v2',
@@ -40,4 +40,9 @@ export async function getPokemonCatalog(signal?: AbortSignal) {
 
   const catalog = await getPokemonList(firstPage.count, 0, signal);
   return catalog.results;
+}
+
+export async function getPokemonByType(type: string, signal?: AbortSignal) {
+  const response = await pokemonApi.get<PokemonTypeResponse>(`/type/${type}`, { signal });
+  return response.data.pokemon.map((entry) => entry.pokemon);
 }

@@ -1,17 +1,19 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
-import { getPokemonCatalog, getPokemonList } from '../api/pokemonApi';
+import { getPokemonByType, getPokemonCatalog, getPokemonList } from '../api/pokemonApi';
 import { PAGE_SIZE, POKEMON_LIST_STALE_TIME } from '../constants/pokemonList';
 import { shouldRetryRequest } from '../helpers/requestError';
 import { toPokemonListItem } from '../helpers/toPokemonListItem';
 import type { PokemonListItem } from '../types/pokemonListItem';
 
-export function usePokemonList(searchText = '') {
+export function usePokemonList(searchText = '', selectedType: string | null = null) {
   const searchTerm = searchText.trim().toLowerCase();
   const isSearching = searchTerm.length > 0;
+  const isFiltering = isSearching || selectedType !== null;
   const query = useInfiniteQuery({
     queryKey: ['pokemon', 'list', PAGE_SIZE],
+    enabled: !isFiltering,
     initialPageParam: 0,
     queryFn: ({ pageParam, signal }) => getPokemonList(PAGE_SIZE, pageParam, signal),
     staleTime: POKEMON_LIST_STALE_TIME,
@@ -21,9 +23,11 @@ export function usePokemonList(searchText = '') {
   });
 
   const searchQuery = useQuery({
-    queryKey: ['pokemon', 'catalog'],
-    queryFn: ({ signal }) => getPokemonCatalog(signal),
-    enabled: isSearching,
+    queryKey: selectedType ? ['pokemon', 'type', selectedType] : ['pokemon', 'catalog'],
+    queryFn: ({ signal }) => selectedType
+      ? getPokemonByType(selectedType, signal)
+      : getPokemonCatalog(signal),
+    enabled: isFiltering,
     staleTime: POKEMON_LIST_STALE_TIME,
     retry: shouldRetryRequest,
   });
@@ -59,12 +63,12 @@ export function usePokemonList(searchText = '') {
   } = query;
 
   const fetchNextPage = useCallback(() => {
-    if (isSearching || !hasNextPage || isFetching || isError) {
+    if (isFiltering || !hasNextPage || isFetching || isError) {
       return;
     }
 
     void fetchQueryNextPage({ cancelRefetch: false });
-  }, [isSearching, hasNextPage, isFetching, isError, fetchQueryNextPage]);
+  }, [isFiltering, hasNextPage, isFetching, isError, fetchQueryNextPage]);
 
   const retry = useCallback(() => {
     if (isFetching) {
@@ -85,7 +89,7 @@ export function usePokemonList(searchText = '') {
     }
   }, [isFetchingSearch, refetchSearch]);
 
-  const activeQuery = isSearching ? searchQuery : query;
+  const activeQuery = isFiltering ? searchQuery : query;
   const { refetch: refetchActive, isFetching: isFetchingActive } = activeQuery;
 
   const refresh = useCallback(() => {
@@ -95,17 +99,17 @@ export function usePokemonList(searchText = '') {
   }, [isFetchingActive, refetchActive]);
 
   return {
-    pokemon: isSearching ? filteredPokemon : pokemon,
+    pokemon: isFiltering ? filteredPokemon : pokemon,
     isLoading: activeQuery.isLoading,
     isError: activeQuery.isError,
     error: activeQuery.error,
     refresh,
     fetchNextPage,
-    hasNextPage: !isSearching && query.hasNextPage,
-    isFetchingNextPage: !isSearching && query.isFetchingNextPage,
-    isFetchNextPageError: !isSearching && isFetchNextPageError,
+    hasNextPage: !isFiltering && query.hasNextPage,
+    isFetchingNextPage: !isFiltering && query.isFetchingNextPage,
+    isFetchNextPageError: !isFiltering && isFetchNextPageError,
     isRefetchError: activeQuery.isRefetchError,
     isRefetching: activeQuery.isRefetching,
-    retry: isSearching ? retrySearch : retry,
+    retry: isFiltering ? retrySearch : retry,
   };
 }

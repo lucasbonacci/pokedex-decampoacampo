@@ -10,6 +10,7 @@ import { EmptyState } from '../components/EmptyState';
 import { ErrorState } from '../components/ErrorState';
 import { Loading } from '../components/Loading';
 import { PokemonListRow } from '../components/PokemonListRow';
+import { PokemonTypeFilter } from '../components/PokemonTypeFilter';
 import { SearchInput } from '../components/SearchInput';
 import { getRequestErrorMessage } from '../helpers/requestError';
 import { useDebounce } from '../hooks/useDebounce';
@@ -23,8 +24,10 @@ function pokemonKey(item: PokemonListItem) {
 
 export default function PokemonListScreen({ navigation }: PokemonListScreenProps) {
   const [searchText, setSearchText] = useState('');
+  const [selectedType, setSelectedType] = useState<string | null>(null);
   const debouncedSearchText = useDebounce(searchText, 500);
   const isSearching = debouncedSearchText.trim().length > 0;
+  const isFiltering = isSearching || selectedType !== null;
   const {
     pokemon,
     isLoading,
@@ -37,7 +40,7 @@ export default function PokemonListScreen({ navigation }: PokemonListScreenProps
     isRefetchError,
     isRefetching,
     retry,
-  } = usePokemonList(debouncedSearchText);
+  } = usePokemonList(debouncedSearchText, selectedType);
 
   const openPokemon = useCallback(
     (pokemonId: number) => navigation.navigate('PokemonDetail', { pokemonId }),
@@ -54,13 +57,13 @@ export default function PokemonListScreen({ navigation }: PokemonListScreenProps
   const listEmpty = useMemo(
     () => (
       <EmptyState
-        message={isSearching
-          ? 'No se encontraron Pokémon para esta búsqueda.'
+        message={isFiltering
+          ? 'No se encontraron Pokémon con estos filtros.'
           : 'No hay Pokémon disponibles.'}
-        description={isSearching ? 'Probá con otro nombre o borrá la búsqueda.' : undefined}
+        description={isFiltering ? 'Probá con otro nombre o seleccioná Todos los tipos.' : undefined}
       />
     ),
-    [isSearching],
+    [isFiltering],
   );
 
   const listHeader = useMemo(
@@ -95,12 +98,14 @@ export default function PokemonListScreen({ navigation }: PokemonListScreenProps
         onChangeText={setSearchText}
         placeholder="Buscar Pokémon por nombre"
       />
+      <PokemonTypeFilter value={selectedType} onChange={setSelectedType} />
       {isLoading ? (
         <Loading label="Cargando Pokémon" fullScreen />
       ) : isError && pokemon.length === 0 ? (
         <ErrorState message={getRequestErrorMessage(error)} onRetry={retry} />
       ) : (
         <FlatList
+          key={`${selectedType ?? 'all'}:${debouncedSearchText.trim().toLowerCase()}`}
           style={styles.list}
           contentContainerStyle={styles.content}
           data={pokemon}
