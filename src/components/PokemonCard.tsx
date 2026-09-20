@@ -6,20 +6,24 @@ type RootProps = {
   children: ReactNode;
   accessibilityLabel: string;
   onPress: () => void;
+  action: ReactNode;
 };
 
-function Root({ children, accessibilityLabel, onPress }: RootProps) {
+function Root({ children, accessibilityLabel, onPress, action }: RootProps) {
   return (
-    <Pressable
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-      accessible
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      accessibilityHint="Abre el detalle del Pokémon"
-      onPress={onPress}
-    >
-      {children}
-    </Pressable>
+    <View style={styles.card}>
+      <Pressable
+        style={({ pressed }) => [styles.content, pressed && styles.pressed]}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint="Abre el detalle del Pokémon"
+        onPress={onPress}
+      >
+        {children}
+      </Pressable>
+      {action}
+    </View>
   );
 }
 
@@ -30,7 +34,7 @@ type PokemonImageProps = {
 function PokemonImage({ imageUrl }: PokemonImageProps) {
   return (
     <Image
-      source={{ uri: imageUrl }}
+      source={imageUrl ? { uri: imageUrl } : require('../../assets/pokemon-placeholder.svg')}
       placeholder={require('../../assets/pokemon-placeholder.svg')}
       style={styles.image}
       contentFit="contain"
@@ -70,12 +74,18 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 12,
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     backgroundColor: '#ffffff',
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
   image: {
     width: 88,

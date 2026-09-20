@@ -21,3 +21,8 @@ export type PokemonDetailScreenProps = NativeStackScreenProps<
   RootStackParamList,
   'PokemonDetail'
 >;
+
+export type FavoritesScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, 'Favorites'>,
+  NativeStackScreenProps<RootStackParamList>
+>;

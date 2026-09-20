@@ -3,15 +3,19 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ErrorState } from '../components/ErrorState';
+import { FavoriteButton } from '../components/FavoriteButton';
 import { Loading } from '../components/Loading';
 import { statLabels, typeLabels } from '../constants/pokemonDetail';
 import { getRequestErrorMessage } from '../helpers/requestError';
+import { useFavorites } from '../hooks/useFavorites';
 import { usePokemonDetail } from '../hooks/usePokemonDetail';
 import type { PokemonDetailScreenProps } from '../navigation/navigation.types';
 
 export default function PokemonDetailScreen({ route }: PokemonDetailScreenProps) {
+  const pokemonId = route.params.pokemonId;
+  const { isFavorite, toggleFavorite } = useFavorites({ pokemonId });
   const { data: pokemon, isPending, isError, error, isFetching, refetch } =
-    usePokemonDetail(route.params.pokemonId);
+    usePokemonDetail(pokemonId);
 
   const retry = () => {
     if (!isFetching) {
@@ -67,6 +71,16 @@ export default function PokemonDetailScreen({ route }: PokemonDetailScreenProps)
               </View>
             ))}
           </View>
+          <FavoriteButton
+            pokemonName={pokemon.name}
+            isFavorite={isFavorite}
+            onPress={() => toggleFavorite({
+              id: pokemon.id,
+              name: pokemon.name,
+              imageUrl: imageUrl ?? '',
+            })}
+            showLabel
+          />
         </View>
 
         <View style={styles.section}>
