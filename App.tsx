@@ -5,6 +5,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 
 import { POKEMON_CACHE_MAX_AGE } from './src/constants/pokemonList';
 import AppNavigator from './src/navigation/AppNavigator';
+import { useFavoritesStore } from './src/stores/useFavoritesStore';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,10 +28,31 @@ export default function App() {
         persister: queryPersister,
         maxAge: POKEMON_CACHE_MAX_AGE,
         dehydrateOptions: {
-          shouldDehydrateQuery: ({ queryKey, state }) =>
-            queryKey[0] === 'pokemon' &&
-            queryKey[1] !== 'detail' &&
-            state.status === 'success',
+          shouldDehydrateQuery: ({ queryKey, state }) => {
+            const isPokemonQuery = queryKey[0] === 'pokemon';
+            const hasData = state.data !== undefined;
+
+            if (!isPokemonQuery || !hasData) {
+              return false;
+            }
+
+            const isDetailQuery = queryKey[1] === 'detail';
+
+            if (!isDetailQuery) {
+              return true;
+            }
+
+            const pokemonId = queryKey[2];
+
+            if (typeof pokemonId !== 'number') {
+              return false;
+            }
+
+            return useFavoritesStore
+              .getState()
+              .favorites
+              .some(({ id }) => id === pokemonId);
+          },
         },
       }}
     >
