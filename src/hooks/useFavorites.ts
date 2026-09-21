@@ -1,7 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
+import { removeFavoriteDetailFromCache } from '../cache/queryClient';
 import { useFavoritesStore } from '../stores/useFavoritesStore';
 import type { PokemonListItem } from '../types/pokemonListItem';
+import { pokemonDetailQueryOptions } from './usePokemonDetail';
 
 type UseFavoritesOptions = {
   pokemonId?: number;
@@ -11,7 +14,7 @@ type UseFavoritesOptions = {
 let hydrationPromise: Promise<void> | undefined;
 
 export function useFavorites({ pokemonId }: UseFavoritesOptions = {}) {
-
+  const queryClient = useQueryClient();
   const favorites = useFavoritesStore((state) =>
     pokemonId === undefined ? state.favorites : undefined,
   );
@@ -43,15 +46,27 @@ export function useFavorites({ pokemonId }: UseFavoritesOptions = {}) {
 
   const toggleFavorite = useCallback(
     async (pokemon: PokemonListItem) => {
-      
       await loadFavorites();
+      const wasFavorite = useFavoritesStore
+        .getState()
+        .favorites
+        .some(({ id }) => id === pokemon.id);
+
       await updateFavorites((current) =>
         current.some(({ id }) => id === pokemon.id)
           ? current.filter(({ id }) => id !== pokemon.id)
           : [...current, pokemon],
       );
+
+      if (wasFavorite) {
+        await removeFavoriteDetailFromCache(queryClient, pokemon.id);
+      } else {
+        void queryClient
+          .query(pokemonDetailQueryOptions(pokemon.id))
+          .catch(() => undefined);
+      }
     },
-    [loadFavorites, updateFavorites],
+    [loadFavorites, updateFavorites, queryClient],
   );
 
   const retry = useCallback(async () => {
