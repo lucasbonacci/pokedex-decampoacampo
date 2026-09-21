@@ -19,7 +19,13 @@ export default function AppNavigator() {
         <Stack.Screen
           name="PokemonDetail"
           component={PokemonDetailScreen}
-          options={{ title: 'Detalle del Pokémon', headerBackTitleVisible: false }}
+          options={{
+            title: 'Detalle del Pokémon',
+            headerBackTitleVisible: false,
+            gestureEnabled: true,
+            fullScreenGestureEnabled: true,
+            gestureDirection: 'horizontal',
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

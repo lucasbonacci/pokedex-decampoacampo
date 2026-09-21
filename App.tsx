@@ -1,4 +1,7 @@
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {
   createQueryClient,
@@ -10,11 +13,16 @@ const queryClient = createQueryClient();
 
 export default function App() {
   return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={persistOptions}
-    >
-      <AppNavigator />
-    </PersistQueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={persistOptions}
+        >
+          <StatusBar style="dark" />
+          <AppNavigator />
+        </PersistQueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
