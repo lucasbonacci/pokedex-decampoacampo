@@ -77,7 +77,7 @@ npm test -- --watchman=false
 
 ## Persistencia y uso offline
 
-Los favoritos se guardan en AsyncStorage mediante Zustand. La lista y otras consultas se persisten con TanStack Query y AsyncStorage, con `maxAge` y `gcTime` configurados en `Infinity`: los datos no se eliminan por antigüedad.
+Los favoritos se guardan en AsyncStorage mediante Zustand. La lista y los detalles de los favoritos se persisten con TanStack Query y AsyncStorage, con `maxAge` y `gcTime` configurados en `Infinity`: los datos no se eliminan automáticamente por antigüedad. Al quitar un favorito, su detalle se elimina de la caché en memoria y de la persistencia.
 
 La lista se considera desactualizada después de cinco minutos. Esto permite intentar actualizarla al volver a consultarla y conservar los datos anteriores si la solicitud falla.
 
@@ -85,7 +85,7 @@ Alcance del modo offline:
 
 - La lista necesita haberse cargado al menos una vez y solo permite consultar las páginas guardadas.
 - La búsqueda y los filtros dependen de que sus respectivos catálogos se hayan descargado previamente.
-- Marcar un favorito desde el listado guarda sus datos básicos, pero no descarga automáticamente su detalle completo.
+- Al marcar un favorito se descarga su detalle en segundo plano para consultarlo sin conexión. Si no hay internet o la descarga falla, el favorito conserva sus datos básicos, pero su detalle no estará disponible offline hasta que pueda descargarse.
 - Las imágenes dependen de la caché de `expo-image`; no se garantiza que todas estén disponibles sin conexión.
 - Borrar los datos de la aplicación o desinstalarla elimina la persistencia local.
 
