@@ -8,10 +8,9 @@ Los datos se obtienen de [PokeAPI](https://pokeapi.co/) mediante Axios.
 
 Capturas reales tomadas en el simulador de iPhone 16 Pro con iOS 18.3.
 
-| Listado | Detalle | Favoritos |
-| :---: | :---: | :---: |
+|                                                    Listado                                                     |                                                      Detalle                                                      |                                              Favoritos                                               |
+| :------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------: |
 | <img src="docs/screenshots/listado.jpg" alt="Listado de Pokémon con buscador y filtro por tipo" width="250" /> | <img src="docs/screenshots/detalle.jpg" alt="Detalle de Bulbasaur con imagen, tipos e información" width="250" /> | <img src="docs/screenshots/favoritos.jpg" alt="Colección de favoritos con Charmeleon" width="250" /> |
-
 
 ## Instalación
 
@@ -32,6 +31,10 @@ npm start
 ```
 
 Desde la terminal de Expo, presionar `a` para abrir Android o `i` para abrir el simulador de iOS. También se puede escanear el QR con un dispositivo que tenga Expo Go compatible; el dispositivo y la computadora deben poder comunicarse por la red local.
+
+### Compatibilidad con Expo Go
+
+Las versiones actuales de Expo Go publicadas en Play Store y App Store no son compatibles con Expo SDK 54.
 
 ## Tests y verificación de tipos
 
@@ -103,6 +106,7 @@ src/
 ├── stores/       # Estado persistido de favoritos
 └── types/        # Tipos de la API y del listado
 ```
+
 ## Consideración de compatibilidad
 
 El proyecto conserva React Navigation 6, recomendado en el challenge. Sin embargo, `@react-navigation/native-stack` v6 junto con `react-native-screens` v4.16 no es una combinación oficialmente soportada: [Screens v4 declara soporte para Native Stack v7](https://github.com/software-mansion/react-native-screens/blob/4.16.0/README.md#usage-with-react-navigation). La navegación mostrada en las capturas funciona en el simulador utilizado, pero esa comprobación no sustituye la validación en ambas plataformas. La actualización coordinada a React Navigation 7 queda como mejora pendiente.
