@@ -1,21 +1,36 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
+import { createElement, type PropsWithChildren } from 'react';
 
+import { getPokemonDetail } from '../../api/pokemonApi';
 import { useFavoritesStore } from '../../stores/useFavoritesStore';
 import { useFavorites } from '../useFavorites';
+
+jest.mock('../../api/pokemonApi');
 
 const pikachu = { id: 25, name: 'pikachu', imageUrl: 'pikachu.png' };
 const bulbasaur = { id: 1, name: 'bulbasaur', imageUrl: 'bulbasaur.png' };
 
+let queryClient: QueryClient;
+
+function wrapper({ children }: PropsWithChildren) {
+  return createElement(QueryClientProvider, { client: queryClient }, children);
+}
+
 beforeEach(async () => {
   jest.restoreAllMocks();
+  jest.mocked(getPokemonDetail).mockResolvedValue({} as never);
+  queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   useFavoritesStore.setState({ favorites: [] });
   await AsyncStorage.clear();
   await useFavoritesStore.persist.rehydrate();
 });
 
+afterEach(() => queryClient.clear());
+
 test('agrega y quita un favorito, guardando ambos cambios', async () => {
-  const { result } = renderHook(() => useFavorites({ pokemonId: pikachu.id }));
+  const { result } = renderHook(() => useFavorites({ pokemonId: pikachu.id }), { wrapper });
   await waitFor(() => expect(result.current.isLoading).toBe(false));
 
   await act(() => result.current.toggleFavorite(pikachu));
@@ -41,7 +56,7 @@ test('recupera los favoritos guardados desde el almacenamiento', async () => {
   expect(useFavoritesStore.getState().favorites).toEqual([]);
 
   await useFavoritesStore.persist.rehydrate();
-  const { result } = renderHook(() => useFavorites());
+  const { result } = renderHook(() => useFavorites(), { wrapper });
 
   await waitFor(() => expect(result.current.isLoading).toBe(false));
   expect(result.current.favorites).toEqual([pikachu]);
@@ -50,7 +65,7 @@ test('recupera los favoritos guardados desde el almacenamiento', async () => {
 
 test('conserva los favoritos anteriores si falla el guardado', async () => {
   await useFavoritesStore.getState().updateFavorites(() => [bulbasaur]);
-  const { result } = renderHook(() => useFavorites());
+  const { result } = renderHook(() => useFavorites(), { wrapper });
   await waitFor(() => expect(result.current.isLoading).toBe(false));
   jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('Sin espacio'));
 
