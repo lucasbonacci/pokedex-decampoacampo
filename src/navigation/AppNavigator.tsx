@@ -23,8 +23,6 @@ export default function AppNavigator() {
             title: 'Detalle del Pokémon',
             headerBackTitleVisible: false,
             gestureEnabled: true,
-            fullScreenGestureEnabled: true,
-            gestureDirection: 'horizontal',
           }}
         />
       </Stack.Navigator>
